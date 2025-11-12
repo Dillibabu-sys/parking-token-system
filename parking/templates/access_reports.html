@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TitanX Parking - Access Reports</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #f5576c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --text: #333;
+            --text-muted: #6c757d;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: url('https://www.nobrokerhood.com/blog/wp-content/uploads/2024/12/Tandem-Paring.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .password-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .password-form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-title {
+            color: var(--dark);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .password-input.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .attempts-warning {
+            color: var(--warning);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .attempts-warning.show {
+            display: block;
+        }
+
+        .lockout-message {
+            color: var(--danger);
+            font-size: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .lockout-message.show {
+            display: block;
+        }
+
+        .security-info {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            margin-top: 1rem;
+            display: inline-block;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .loading.show {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success animation */
+        @keyframes success {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-animation {
+            animation: success 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .password-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .password-form {
+                padding: 1.5rem;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="password-container">
+        <div class="logo">TITANX PARKING</div>
+        <div class="subtitle">Secure Reports Access</div>
+        
+        <div class="password-form">
+            <h2 class="form-title">🔐 Enter Password</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Please enter the administrator password to access the reports dashboard.
+            </p>
+            
+            <div class="input-group">
+                <label class="input-label">Password</label>
+                <input type="password" class="password-input" id="passwordInput" placeholder="Enter your password" autocomplete="off">
+                <div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
+            </div>
+            
+            <button class="btn" id="submitBtn">
+                <span>Access Reports</span>
+                <span class="loading" id="loadingSpinner">⏳</span>
+            </button>
+            
+            <div class="attempts-warning" id="attemptsWarning">
+                ⚠️ <strong>Warning:</strong> 2 attempts remaining
+            </div>
+            
+            <div class="lockout-message" id="lockoutMessage">
+                🔒 Account temporarily locked. Please try again in <span id="countdown">30</span> seconds.
+            </div>
+        </div>
+        
+        <div class="security-info">
+            🔒 For security reasons, access is restricted to authorized personnel only.
+        </div>
+        
+        <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('passwordInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const attemptsWarning = document.getElementById('attemptsWarning');
+            const lockoutMessage = document.getElementById('lockoutMessage');
+            const countdownElement = document.getElementById('countdown');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            // Configuration
+            const CORRECT_PASSWORD = "admin123"; // Change this to your desired password
+            const MAX_ATTEMPTS = 3;
+            const LOCKOUT_TIME = 30; // seconds
+            
+            let attempts = 0;
+            let isLocked = false;
+            
+            // Focus on password input
+            passwordInput.focus();
+            
+            // Submit button click handler
+            submitBtn.addEventListener('click', function() {
+                if (isLocked) return;
+                
+                authenticate();
+            });
+            
+            // Enter key handler
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !isLocked) {
+                    authenticate();
+                }
+            });
+            
+            function authenticate() {
+                const enteredPassword = passwordInput.value.trim();
+                
+                if (!enteredPassword) {
+                    showError("Please enter a password");
+                    return;
+                }
+                
+                // Show loading
+                submitBtn.disabled = true;
+                loadingSpinner.classList.add('show');
+                
+                // Simulate authentication delay
+                setTimeout(() => {
+                    if (enteredPassword === CORRECT_PASSWORD) {
+                        // Success - redirect to reports page
+                        handleSuccess();
+                    } else {
+                        // Failed attempt
+                        handleFailedAttempt();
+                    }
+                    
+                    submitBtn.disabled = false;
+                    loadingSpinner.classList.remove('show');
+                }, 1000);
+            }
+            
+            function handleSuccess() {
+                // Add success animation
+                submitBtn.classList.add('success-animation');
+                
+                // Show success message briefly
+                errorMessage.textContent = "✓ Access granted! Redirecting...";
+                errorMessage.style.color = "var(--success)";
+                errorMessage.classList.add('show');
+                
+                // Clear password field
+                passwordInput.value = '';
+                
+                // Redirect to reports page after delay
+                setTimeout(() => {
+                    window.location.href = "reports_analytics.html";
+                }, 1000);
+            }
+            
+            function handleFailedAttempt() {
+                attempts++;
+                
+                // Show error
+                errorMessage.textContent = "Incorrect password. Please try again.";
+                errorMessage.style.color = "var(--danger)";
+                errorMessage.classList.add('show');
+                passwordInput.classList.add('error');
+                
+                // Clear password field
+                passwordInput.value = '';
+                passwordInput.focus();
+                
+                // Show attempts warning
+                const remainingAttempts = MAX_ATTEMPTS - attempts;
+                if (remainingAttempts > 0) {
+                    attemptsWarning.textContent = `⚠️ Warning: ${remainingAttempts} attempt${remainingAttempts > 1 ? 's' : ''} remaining`;
+                    attemptsWarning.classList.add('show');
+                }
+                
+                // Check for lockout
+                if (attempts >= MAX_ATTEMPTS) {
+                    lockoutUser();
+                }
+                
+                // Remove error styling after delay
+                setTimeout(() => {
+                    passwordInput.classList.remove('error');
+                }, 2000);
+            }
+            
+            function lockoutUser() {
+                isLocked = true;
+                submitBtn.disabled = true;
+                passwordInput.disabled = true;
+                attemptsWarning.classList.remove('show');
+                lockoutMessage.classList.add('show');
+                
+                let timeLeft = LOCKOUT_TIME;
+                
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        resetLogin();
+                    }
+                }, 1000);
+            }
+            
+            function resetLogin() {
+                isLocked = false;
+                attempts = 0;
+                submitBtn.disabled = false;
+                passwordInput.disabled = false;
+                lockoutMessage.classList.remove('show');
+                attemptsWarning.classList.remove('show');
+                errorMessage.classList.remove('show');
+                passwordInput.focus();
+            }
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.color = "var(--danger)";
+                errorMessage.classList.add('show');
+                passwordInput.classList.add('error');
+                
+                setTimeout(() => {
+                    passwordInput.classList.remove('error');
+                }, 2000);
+            }
+            
+            // Add some visual feedback for password input
+            passwordInput.addEventListener('input', function() {
+                if (this.value.length > 0) {
+                    this.classList.remove('error');
+                    errorMessage.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

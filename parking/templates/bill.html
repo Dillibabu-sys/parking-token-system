@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ mall }} - Bill</title>
+    <style>
+        body { font-family: Arial, sans-serif; width: 350px; margin: auto; }
+        h2 { text-align: center; }
+        hr { border: 1px dashed #000; }
+        .line { display: flex; justify-content: space-between; }
+        button { width: 100%; padding: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>{{ mall }}</h2>
+    <p>GST 33AAAFN1642F1ZU</p>
+    <p>Parking Maintained by TitanX</p>
+    <hr>
+    <p>Token No: {{ entry.token_id }}</p>
+    <p>Vehicle No: {{ entry.vehicle_no }}</p>
+    <p>Date: {{ entry.entry_time|date:"d-m-Y" }}</p>
+    <p>In Time: {{ entry.entry_time|date:"h:i:s A" }}</p>
+    <p>Out Time: {{ entry.exit_time|date:"h:i:s A" }}</p>
+    <hr>
+    <div class="line"><span>Rate:</span><span>₹{{ base }}</span></div>
+    <div class="line"><span>CGST @9%</span><span>₹{{ cgst }}</span></div>
+    <div class="line"><span>SGST @9%</span><span>₹{{ sgst }}</span></div>
+    <hr>
+    <h3 class="line"><span>Net Amount:</span><span>₹{{ total }}</span></h3>
+    <p>* Amount inclusive of GST @18%</p>
+    <p>* Parking at owner's risk</p>
+    <button onclick="window.print()">Print Bill</button>
+</body>
+</html>

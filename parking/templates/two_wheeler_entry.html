@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Wheeler IN - TitanX Parking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .brand-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .live-time {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .live-date {
+            color: #10b981;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        /* Form Styling */
+        .form-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #10b981;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+
+        /* Ticket Preview */
+        .ticket-preview {
+            background: white;
+            border: 3px solid #10b981;
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 400px;
+            margin: 2rem auto;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .ticket-header {
+            text-align: center;
+            border-bottom: 2px dashed #10b981;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .ticket-header h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #10b981;
+        }
+
+        .line {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .divider {
+            border-top: 1px dashed #10b981;
+            margin: 15px 0;
+            padding-top: 15px;
+        }
+
+        .ticket-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            margin-top: 15px;
+            border-top: 1px dashed #10b981;
+            padding-top: 15px;
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-print {
+            background: #10b981;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .navigation {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .nav-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #6b7280;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.out {
+            background: #ef4444;
+        }
+
+        .nav-btn.out:hover {
+            background: #dc2626;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .form-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .ticket-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="brand-name">🏍️ TITANX PARKING - TWO WHEELER IN</div>
+        <div class="user-info">
+            <div class="live-time" id="liveTime">Loading...</div>
+            <div class="live-date" id="liveDate">Loading...</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">🏍️ Two Wheeler Entry</h1>
+        
+        <!-- Django Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}" style="display: block;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Alert Messages -->
+        <div class="alert alert-error" id="errorAlert"></div>
+        <div class="alert alert-success" id="successAlert"></div>
+
+        <!-- Entry Form -->
+        <div class="form-container">
+            <h3 style="color: #10b981; margin-bottom: 1.5rem; text-align: center;">🏍️ Vehicle Entry Form</h3>
+            
+            <div class="form-group">
+                <label class="form-label">🏍️ Vehicle Number *</label>
+                <input type="text" id="vehicleNumber" class="form-input" placeholder="e.g., TN10AB1234" required oninput="this.value = this.value.toUpperCase()" maxlength="20">
+                <div class="error-message" id="vehicleError">Please enter a valid vehicle number</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">👤 Owner Name (Optional)</label>
+                <input type="text" id="ownerName" class="form-input" placeholder="Enter owner name" maxlength="100">
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="btn btn-primary" onclick="generateTicket()">🎫 Generate Parking Ticket</button>
+                <button class="btn btn-secondary" onclick="clearForm()">🗑️ Clear Form</button>
+            </div>
+        </div>
+
+        <!-- Ticket Preview -->
+        <div id="ticketPreview" class="ticket-preview">
+            <div class="ticket-header">
+                <h2>🏍️ TITANX PARKING</h2>
+                <div>Two Wheeler Parking Ticket</div>
+                <div style="font-weight: bold; font-size: 16px;">Token: <span id="ticketToken">TW001</span></div>
+            </div>
+            
+            <div class="line"><strong>Vehicle No:</strong> <span id="ticketVehicle">TN10AB1234</span></div>
+            <div class="line"><strong>Owner Name:</strong> <span id="ticketOwner">Not Provided</span></div>
+            <div class="line"><strong>Entry Date:</strong> <span id="ticketDate">01/01/2024</span></div>
+            <div class="line"><strong>Entry Time:</strong> <span id="ticketTime">10:00:00 AM</span></div>
+            
+            <div class="divider"></div>
+            
+            <div class="line"><span>Parking Rate:</span><span>₹30 per hour</span></div>
+            <div class="line"><span>Minimum Charge:</span><span>₹30 (1 hour)</span></div>
+            
+            <div class="divider"></div>
+            
+            <div class="ticket-footer">
+                <div>* Keep this token safe for exit</div>
+                <div>* GST included: CGST @9% + SGST @9%</div>
+                <div>* Parking at owner's risk</div>
+                <div>📍 TitanX Parking System</div>
+            </div>
+
+            <div class="ticket-actions">
+                <button class="btn-print" onclick="printTicket()">🖨️ Print Ticket</button>
+                <button class="btn btn-primary" onclick="saveEntry()">💾 Save Entry</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="{% url 'two_wheeler_exit_search' %}" class="nav-btn out">🚪 Go to OUT Page</a>
+            <a href="{% url 'homepage' %}" class="nav-btn">🏠 Back to Home</a>
+        </div>
+    </main>
+
+    <script>
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Update time
+            const timeElement = document.getElementById('liveTime');
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('en-IN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+            }
+            
+            // Update date
+            const dateElement = document.getElementById('liveDate');
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-IN', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+
+        // Validate vehicle number
+        function validateVehicleNumber() {
+            const vehicleNumber = document.getElementById('vehicleNumber').value.trim();
+            const vehicleError = document.getElementById('vehicleError');
+            
+            if (!vehicleNumber) {
+                showElementError('vehicleNumber', 'Vehicle number is required');
+                return false;
+            }
+
+            // Simple vehicle number validation
+            const vehicleRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,2}[0-9]{1,4}$/;
+            if (!vehicleRegex.test(vehicleNumber)) {
+                showElementError('vehicleNumber', 'Please enter valid vehicle number (e.g., TN10AB1234)');
+                return false;
+            }
+
+            hideElementError('vehicleNumber');
+            return true;
+        }
+
+        function showElementError(elementId, message) {
+            const element = document.getElementById(elementId);
+            const errorElement = document.getElementById(elementId + 'Error');
+            
+            if (element && errorElement) {
+                element.classList.add('error');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function hideElementError(elementId) {
+            const element = document.getElementById(elementId);
+            const errorElement = document.getElementById(elementId + 'Error');
+            
+            if (element && errorElement) {
+                element.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                errorAlert.textContent = message;
+                errorAlert.style.display = 'block';
+                
+                setTimeout(() => {
+                    errorAlert.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function showSuccess(message) {
+            const successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                successAlert.textContent = message;
+                successAlert.style.display = 'block';
+                
+                setTimeout(() => {
+                    successAlert.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Generate parking ticket
+        function generateTicket() {
+            const vehicleNumber = document.getElementById('vehicleNumber').value.trim();
+            const ownerName = document.getElementById('ownerName').value.trim();
+
+            // Validate input
+            if (!validateVehicleNumber()) {
+                showError('Please enter a valid vehicle number');
+                return;
+            }
+
+            // Generate token number
+            const tokenNumber = 'TW' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            const now = new Date();
+
+            // Update ticket content
+            document.getElementById('ticketToken').textContent = tokenNumber;
+            document.getElementById('ticketVehicle').textContent = vehicleNumber;
+            document.getElementById('ticketOwner').textContent = ownerName || 'Not Provided';
+            document.getElementById('ticketDate').textContent = now.toLocaleDateString();
+            document.getElementById('ticketTime').textContent = now.toLocaleTimeString();
+
+            // Show ticket preview
+            document.getElementById('ticketPreview').style.display = 'block';
+
+            // Scroll to ticket
+            document.getElementById('ticketPreview').scrollIntoView({ behavior: 'smooth' });
+
+            showSuccess('✅ Parking ticket generated successfully!');
+        }
+
+        // Print ticket
+        function printTicket() {
+            const ticketContent = document.getElementById('ticketPreview').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = ticketContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            
+            // Re-initialize
+            updateDateTime();
+        }
+
+        // Save entry to database
+        function saveEntry() {
+            const tokenNumber = document.getElementById('ticketToken').textContent;
+            const vehicleNumber = document.getElementById('ticketVehicle').textContent;
+            
+            showSuccess(`✅ Entry saved successfully! Token: ${tokenNumber}`);
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('vehicleNumber').value = '';
+            document.getElementById('ownerName').value = '';
+            document.getElementById('ticketPreview').style.display = 'none';
+            hideElementError('vehicleNumber');
+            document.getElementById('vehicleNumber').focus();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Enter key support
+            document.getElementById('vehicleNumber').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generateTicket();
+                }
+            });
+        });
+
+        // Make functions globally available
+        window.generateTicket = generateTicket;
+        window.printTicket = printTicket;
+        window.saveEntry = saveEntry;
+        window.clearForm = clearForm;
+    </script>
+</body>
+</html>
+

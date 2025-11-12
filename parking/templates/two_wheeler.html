@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Wheeler - TitanX Parking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .brand-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .live-time {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .live-date {
+            color: #10b981;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Action Cards */
+        .action-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            border: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-card.in:hover {
+            border-color: #10b981;
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-card.out:hover {
+            border-color: #ef4444;
+            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Navigation */
+        .navigation {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .nav-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #6b7280;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.logout {
+            background: #ef4444;
+        }
+
+        .nav-btn.logout:hover {
+            background: #dc2626;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .action-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .main-content {
+                padding: 1.5rem;
+                margin: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="brand-name">🏍️ TITANX PARKING - TWO WHEELER</div>
+        <div class="user-info">
+            <div class="live-time" id="liveTime">Loading...</div>
+            <div class="live-date" id="liveDate">Loading...</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">🏍️ Two Wheeler Management</h1>
+        
+        <!-- Statistics -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="parkedCount">12</div>
+                <div class="stat-label">Currently Parked</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayIn">28</div>
+                <div class="stat-label">Today IN</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayOut">16</div>
+                <div class="stat-label">Today OUT</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">₹30</div>
+                <div class="stat-label">Per Hour Rate</div>
+            </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="action-cards">
+            <!-- IN Card -->
+            <div class="action-card in" onclick="goToInPage()">
+                <span class="card-icon">🚗</span>
+                <h2 class="card-title">Vehicle IN</h2>
+                <p class="card-description">
+                    Register new two-wheeler entry<br>
+                    Generate parking token<br>
+                    Print entry ticket
+                </p>
+                <button class="btn btn-primary">🎫 Enter Vehicle</button>
+            </div>
+
+            <!-- OUT Card -->
+            <div class="action-card out" onclick="goToOutPage()">
+                <span class="card-icon">🚪</span>
+                <h2 class="card-title">Vehicle OUT</h2>
+                <p class="card-description">
+                    Process vehicle exit<br>
+                    Calculate parking charges<br>
+                    Generate payment bill
+                </p>
+                <button class="btn btn-danger">💰 Exit Vehicle</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="homepage.html" class="nav-btn">🏠 Back to Home</a>
+            <button onclick="logout()" class="nav-btn logout">🚪 Logout</button>
+        </div>
+    </main>
+
+    <script>
+        class TwoWheelerDashboard {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.checkAuthentication();
+                this.updateLiveDateTime();
+                this.loadStats();
+                
+                setInterval(() => this.updateLiveDateTime(), 1000);
+                setInterval(() => this.loadStats(), 30000); // Update stats every 30 seconds
+            }
+
+            checkAuthentication() {
+                const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+                if (!user.username || user.redirectTo !== 'two_wheeler_in.html') {
+                    window.location.href = 'homepage.html';
+                }
+            }
+
+            updateLiveDateTime() {
+                const now = new Date();
+                
+                document.getElementById('liveTime').textContent = now.toLocaleTimeString('en-IN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+                
+                document.getElementById('liveDate').textContent = now.toLocaleDateString('en-IN', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+
+            loadStats() {
+                // Simulate real-time stats
+                document.getElementById('parkedCount').textContent = Math.floor(Math.random() * 10) + 8;
+                document.getElementById('todayIn').textContent = Math.floor(Math.random() * 20) + 15;
+                document.getElementById('todayOut').textContent = Math.floor(Math.random() * 15) + 10;
+            }
+
+            goToInPage() {
+                window.location.href = 'two_wheeler_entry.html';
+            }
+
+            goToOutPage() {
+                window.location.href = 'two_wheeler_exit.html';
+            }
+
+            logout() {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'homepage.html';
+            }
+        }
+
+        // Initialize dashboard
+        let twoWheelerDashboard;
+        document.addEventListener('DOMContentLoaded', () => {
+            twoWheelerDashboard = new TwoWheelerDashboard();
+            
+            // Make functions globally available
+            window.goToInPage = () => twoWheelerDashboard.goToInPage();
+            window.goToOutPage = () => twoWheelerDashboard.goToOutPage();
+            window.logout = () => twoWheelerDashboard.logout();
+        });
+    </script>
+</body>
+</html>

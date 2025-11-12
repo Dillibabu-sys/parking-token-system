@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TitanX Parking - Dashboard</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #f5576c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --text: #333;
+            --text-muted: #6c757d;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: url('https://www.nobrokerhood.com/blog/wp-content/uploads/2024/12/Tandem-Paring.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Header Styles */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            color: rgb(0, 0, 0);
+        }
+        
+        .clock-container {
+            text-align: center;
+        }
+        
+        #svDate {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        #svTime {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .user-info {
+            font-size: 1rem;
+            color: white;
+        }
+        
+        .user-info strong {
+            color: var(--primary);
+        }
+        
+        /* Main Container */
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #0a0a0a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+        
+        /* Stats Container */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #0a0a0a);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        /* Action Sections */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .action-section {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 3px solid transparent;
+        }
+        
+        .action-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        /* Two Wheeler Section - Green Theme */
+        .two-wheeler-section {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .two-wheeler-section:hover {
+            border-color: #10b981;
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.2);
+        }
+        
+        .two-wheeler-title {
+            color: #10b981;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .btn-two-wheeler {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .btn-two-wheeler:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+        
+        /* Four Wheeler Section - Red Theme */
+        .four-wheeler-section {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .four-wheeler-section:hover {
+            border-color: #ef4444;
+            box-shadow: 0 15px 30px rgba(239, 68, 68, 0.2);
+        }
+        
+        .four-wheeler-title {
+            color: #ef4444;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .btn-four-wheeler {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .btn-four-wheeler:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+        
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn.warning {
+            background: linear-gradient(135deg, var(--warning), #e68900);
+            color: white;
+        }
+        
+        .btn.info {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .muted {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Recent Activity */
+        .activity-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+        
+        .activity-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .activity-list {
+            list-style-type: none;
+            color: white;
+        }
+        
+        .activity-item {
+            padding: 0.8rem 1rem;
+            border-left: 4px solid var(--primary);
+            background: rgba(117, 110, 110, 0.5);
+            margin-bottom: 0.8rem;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+        
+        .activity-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.5);
+            color: black;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        /* Parking Status */
+        .parking-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        .status-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+        
+        .capacity-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .capacity-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        
+        .two-wheeler-fill {
+            background: linear-gradient(to right, #10b981, #059669);
+            width: 65%;
+        }
+        
+        .four-wheeler-fill {
+            background: linear-gradient(to right, #ef4444, #dc2626);
+            width: 80%;
+        }
+        
+        .capacity-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .topbar {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .parking-status {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+   
+    <main class="container">
+        <header class="topbar">
+            <div class="brand-name">TITANX PARKING SYSTEM</div>
+            <div class="clock-container">
+                <div id="svDate" class="muted" style="color: rgb(0, 0, 0);"></div>
+                <div id="svTime" class="clock" style="color: rgb(0, 0, 0);"></div>
+            </div>
+            <div class="user-info">
+                Welcome, <strong style="color: rgb(0, 0, 0);" id="userDisplay">Admin User</strong>
+            </div>
+        </header>
+
+        <h1>Parking Management Dashboard</h1>
+        
+        <!-- Statistics -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">142</div>
+                <div class="stat-label">Total Parked Vehicles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">89</div>
+                <div class="stat-label">Two Wheelers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">53</div>
+                <div class="stat-label">Four Wheelers</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <!-- Two Wheeler Section - Green Theme -->
+            <div class="action-section two-wheeler-section">
+                <h2 class="two-wheeler-title">🏍️ Two Wheeler Parking</h2>
+                <div class="row">
+                    <!-- FIXED: Two Wheeler Entry Button -->
+                    <a href="{% url 'two_wheeler_entry' %}" class="btn btn-two-wheeler">Vehicle Entry</a>
+                    <!-- FIXED: Two Wheeler Exit Button -->
+                    <a href="{% url 'two_wheeler_exit_search' %}" class="btn warning">Vehicle Exit</a>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <small class="muted">Rate: ₹30 per hour</small>
+                </div>
+            </div>
+            
+            <!-- Four Wheeler Section - Red Theme -->
+            <div class="action-section four-wheeler-section">
+                <h2 class="four-wheeler-title">🚙 Four Wheeler Parking</h2>
+                <div class="row">
+                    <a href="{% url 'four_wheeler_entry' %}" class="btn btn-four-wheeler">Vehicle Entry</a>
+                    <a href="{% url 'four_wheeler_exit_search' %}" class="btn warning">Vehicle Exit</a>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <small class="muted">Rate: ₹50 per hour</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Parking Status -->
+        <div class="parking-status">
+            <div class="status-card">
+                <h3 class="status-title">Two Wheeler Capacity</h3>
+                <div class="capacity-bar">
+                    <div class="capacity-fill two-wheeler-fill"></div>
+                </div>
+                <div class="capacity-text">65% Filled (89/137 slots)</div>
+            </div>
+            
+            <div class="status-card">
+                <h3 class="status-title">Four Wheeler Capacity</h3>
+                <div class="capacity-bar">
+                    <div class="capacity-fill four-wheeler-fill"></div>
+                </div>
+                <div class="capacity-text">80% Filled (53/66 slots)</div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section">
+            <h3 class="activity-title">Recent Activity</h3>
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <span>Two-wheeler entered (TN-07-AB-1234)</span>
+                    <span class="activity-time">10:25 AM</span>
+                </li>
+                <li class="activity-item">
+                    <span>Four-wheeler exited (TN-07-CD-5678)</span>
+                    <span class="activity-time">10:15 AM</span>
+                </li>
+                <li class="activity-item">
+                    <span>Payment received: ₹150</span>
+                    <span class="activity-time">10:05 AM</span>
+                </li>
+                <li class="activity-item">
+                    <span>Four-wheeler entered (TN-07-EF-9012)</span>
+                    <span class="activity-time">9:45 AM</span>
+                </li>
+                <li class="activity-item">
+                    <span>Two-wheeler exited (TN-07-GH-3456)</span>
+                    <span class="activity-time">9:30 AM</span>
+                </li>
+            </ul>
+        </div>
+<!-- In the Quick Actions section -->
+ <div style="text-align: center; margin-top: 2rem;">
+    <h3>Quick Actions</h3>
+    <div class="row">
+        <!-- Make sure this line uses the correct URL name -->
+         <a href="{% url 'reports_analytics' %}" class="btn info">View Reports</a>
+         <a href="{% url 'logout_view' %}" class="btn warning">Logout</a>
+        </div>
+    </div>
+    </main>
+
+    <footer>
+        <p>TitanX Parking System &copy; 2025 | Secure Parking Solutions</p>
+    </footer>
+
+    <script>
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('svDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Format time
+            document.getElementById('svTime').textContent = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+        }
+        
+        // Update immediately and then every second
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // Add some dynamic behavior to stats
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stat numbers
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const target = parseInt(stat.textContent.replace('₹', '').replace(',', ''));
+                let current = 0;
+                const increment = target / 50;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    
+                    if (stat.textContent.includes('₹')) {
+                        stat.textContent = '₹' + Math.floor(current).toLocaleString();
+                    } else {
+                        stat.textContent = Math.floor(current);
+                    }
+                }, 30);
+            });
+            
+            // Add hover effect to activity items
+            const activityItems = document.querySelectorAll('.activity-item');
+            activityItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+        });
+
+        // Logout function
+        function logout() {
+            // If using sessionStorage for frontend auth
+            sessionStorage.removeItem('currentUser');
+            // Redirect to Django logout
+            window.location.href = "{% url 'logout_view' %}";
+        }
+    </script>
+</body>
+</html>

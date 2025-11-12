@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exit Successful</title>
+</head>
+<body>
+    <h1>✅ Exit Successful!</h1>
+    <p><strong>Token ID:</strong> {{ entry.token_id }}</p>
+    <p><strong>Vehicle No:</strong> {{ entry.vehicle_no }}</p>
+    <p><strong>Amount Paid:</strong> ₹{{ entry.amount }}</p>
+    <a href="{% url 'homepage' %}">Back to Home</a>
+</body>
+</html>

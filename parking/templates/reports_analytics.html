@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TitanX Parking - Reports & Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #f5576c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --text: #333;
+            --text-muted: #6c757d;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: url('https://www.nobrokerhood.com/blog/wp-content/uploads/2024/12/Tandem-Paring.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: rgb(0, 0, 0);
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.2rem;
+            color: white;
+            font-weight: 700;
+        }
+        
+        /* Report Type Selector */
+        .report-type-selector {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .report-tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .report-tab {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--dark);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .report-tab.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .report-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        /* Report Content */
+        .report-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .report-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+        
+        .report-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+            font-weight: 700;
+        }
+        
+        .report-period {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        /* Report Tables */
+        .report-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+        }
+        
+        .report-table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        .report-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .report-table tr:nth-child(even) {
+            background: rgba(0,0,0,0.02);
+        }
+        
+        .report-table tr:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #45a049);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #e68900);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #d23369);
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, var(--warning), #e68900);
+        }
+        
+        /* Export Modal */
+        .export-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .export-modal.active {
+            display: flex;
+        }
+
+        .export-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .progress-container {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 20px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, var(--success), #45a049);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .report-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .report-tab {
+                width: 200px;
+            }
+            
+            .report-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand-name">TITANX PARKING SYSTEM</div>
+        <div class="user-info">
+            Welcome, <strong style="color: rgb(0, 0, 0);">Admin</strong>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>📊 Reports & Analytics</h1>
+        
+        <!-- Report Type Selector -->
+        <div class="report-type-selector">
+            <h3 style="color: var(--dark);">Select Report Type</h3>
+            <div class="report-tabs">
+                <button class="report-tab active" data-report="daily">📅 Daily Report</button>
+                <button class="report-tab" data-report="weekly">📊 Weekly Report</button>
+                <button class="report-tab" data-report="monthly">📈 Monthly Report</button>
+            </div>
+        </div>
+
+        <!-- Daily Report -->
+        <div class="report-content active" id="daily-report">
+            <div class="report-header">
+                <div>
+                    <h2 class="report-title">📅 Daily Parking Report</h2>
+                    <div class="report-period">Date: <span id="daily-date">November 15, 2024</span></div>
+                </div>
+                <button class="btn" id="export-daily">📥 Export to Excel</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">287</div>
+                    <div class="stat-label">Total Vehicles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₹8,450</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">154</div>
+                    <div class="stat-label">Two Wheelers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">133</div>
+                    <div class="stat-label">Four Wheelers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">92%</div>
+                    <div class="stat-label">Capacity Used</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₹29.44</div>
+                    <div class="stat-label">Avg. Revenue/Vehicle</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3 class="chart-title">Hourly Vehicle Entry Trend</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="dailyHourlyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Revenue by Vehicle Type</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="dailyRevenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Vehicle Type Distribution</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="dailyDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Peak Hours Analysis</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="dailyPeakChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Time Slot</th>
+                        <th>Two Wheelers</th>
+                        <th>Four Wheelers</th>
+                        <th>Total Entries</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>6:00 AM - 9:00 AM</td>
+                        <td>45</td>
+                        <td>32</td>
+                        <td>77</td>
+                        <td>₹2,310</td>
+                    </tr>
+                    <tr>
+                        <td>9:00 AM - 12:00 PM</td>
+                        <td>38</td>
+                        <td>28</td>
+                        <td>66</td>
+                        <td>₹1,980</td>
+                    </tr>
+                    <tr>
+                        <td>12:00 PM - 3:00 PM</td>
+                        <td>32</td>
+                        <td>25</td>
+                        <td>57</td>
+                        <td>₹1,710</td>
+                    </tr>
+                    <tr>
+                        <td>3:00 PM - 6:00 PM</td>
+                        <td>26</td>
+                        <td>31</td>
+                        <td>57</td>
+                        <td>₹1,710</td>
+                    </tr>
+                    <tr>
+                        <td>6:00 PM - 9:00 PM</td>
+                        <td>13</td>
+                        <td>17</td>
+                        <td>30</td>
+                        <td>₹740</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Weekly Report -->
+        <div class="report-content" id="weekly-report">
+            <div class="report-header">
+                <div>
+                    <h2 class="report-title">📊 Weekly Parking Report</h2>
+                    <div class="report-period">Week: <span id="weekly-date">November 8-14, 2024</span></div>
+                </div>
+                <button class="btn" id="export-weekly">📥 Export to Excel</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">1,856</div>
+                    <div class="stat-label">Total Vehicles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₹54,320</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">987</div>
+                    <div class="stat-label">Two Wheelers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">869</div>
+                    <div class="stat-label">Four Wheelers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">88%</div>
+                    <div class="stat-label">Avg. Capacity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₹29.27</div>
+                    <div class="stat-label">Avg. Revenue/Vehicle</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3 class="chart-title">Weekly Vehicle Trends</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="weeklyTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Revenue by Day</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="weeklyRevenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Vehicle Type Weekly Comparison</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="weeklyComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Capacity Utilization</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="weeklyCapacityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Two Wheelers</th>
+                        <th>Four Wheelers</th>
+                        <th>Total Entries</th>
+                        <th>Revenue</th>
+                        <th>Capacity %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Monday</td>
+                        <td>142</td>
+                        <td>125</td>
+                        <td>267</td>
+                        <td>₹7,840</td>
+                        <td>85%</td>
+                    </tr>
+                    <tr>
+                        <td>Tuesday</td>
+                        <td>138</td>
+                        <td>118</td>
+                        <td>256</td>
+                        <td>₹7,520</td>
+                        <td>82%</td>
+                    </tr>
+                    <tr>
+                        <td>Wednesday</td>
+                        <td>156</td>
+                        <td>134</td>
+                        <td>290</td>
+                        <td>₹8,320</td>
+                        <td>92%</td>
+                    </tr>
+                    <tr>
+                        <td>Thursday</td>
+                        <td>148</td>
+                        <td>129</td>
+                        <td>277</td>
+                        <td>₹8,010</td>
+                        <td>88%</td>
+                    </tr>
+                    <tr>
+                        <td>Friday</td>
+                        <td>165</td>
+                        <td>152</td>
+                        <td>317</td>
+                        <td>₹9,210</td>
+                        <td>95%</td>
+                    </tr>
+                    <tr>
+                        <td>Saturday</td>
+                        <td>132</td>
+                        <td>121</td>
+                        <td>253</td>
+                        <td>₹7,420</td>
+                        <td>80%</td>
+                    </tr>
+                    <tr>
+                        <td>Sunday</td>
+                        <td>106</td>
+                        <td>90</td>
+                        <td>196</td>
+                        <td>₹6,000</td>
+                        <td>65%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Monthly Report -->
+        <div class="report-content" id="monthly-report">
+            <div class="report-header">
+                <div>
+                    <h2 class="report-title">📈 Monthly Parking Report</h2>
+                    <div class="report-period">Month: <span id="monthly-date">November 2024</span></div>
+                </div>
+                <button class="btn" id="export-monthly">📥 Export to Excel</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">7,892</div>
+                    <div class="stat-label">Total Vehicles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₹231,450</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4,215</div>
+                    <div class="stat-label">Two Wheelers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3,677</div>
+                    <div class="stat-label">Four Wheelers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">86%</div>
+                    <div class="stat-label">Avg. Capacity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₹29.33</div>
+                    <div class="stat-label">Avg. Revenue/Vehicle</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3 class="chart-title">Monthly Revenue Trend</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="monthlyRevenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Vehicle Type Distribution</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="monthlyDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Weekly Performance</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="monthlyWeeklyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Revenue vs Capacity</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="monthlyComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th>Two Wheelers</th>
+                        <th>Four Wheelers</th>
+                        <th>Total Entries</th>
+                        <th>Revenue</th>
+                        <th>Growth %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Week 1 (Nov 1-7)</td>
+                        <td>985</td>
+                        <td>845</td>
+                        <td>1,830</td>
+                        <td>₹53,200</td>
+                        <td>+5.2%</td>
+                    </tr>
+                    <tr>
+                        <td>Week 2 (Nov 8-14)</td>
+                        <td>1,087</td>
+                        <td>879</td>
+                        <td>1,966</td>
+                        <td>₹57,120</td>
+                        <td>+7.4%</td>
+                    </tr>
+                    <tr>
+                        <td>Week 3 (Nov 15-21)</td>
+                        <td>1,125</td>
+                        <td>925</td>
+                        <td>2,050</td>
+                        <td>₹59,450</td>
+                        <td>+4.1%</td>
+                    </tr>
+                    <tr>
+                        <td>Week 4 (Nov 22-28)</td>
+                        <td>1,018</td>
+                        <td>1,028</td>
+                        <td>2,046</td>
+                        <td>₹61,680</td>
+                        <td>+3.7%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Report Actions -->
+        <div class="report-actions">
+            <h3 style="color: var(--dark); margin-bottom: 1rem;">Generate Reports</h3>
+            <div class="action-buttons">
+                <button class="btn btn-success" id="generate-daily">📅 Daily Report</button>
+                <button class="btn btn-warning" id="generate-weekly">📊 Weekly Report</button>
+                <button class="btn btn-danger" id="generate-monthly">📈 Monthly Report</button>
+                <button class="btn" id="export-excel">📥 Export to Excel</button>
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-muted); text-align: center;">
+                Reports will be downloaded as Excel files with detailed data and analytics.
+            </p>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div style="text-align: center; margin-top: 3rem;">
+            <button class="btn back-btn">← Back to Dashboard</button>
+        </div>
+    </main>
+
+    <!-- Export Modal -->
+    <div class="export-modal" id="exportModal">
+        <div class="export-content">
+            <h3 style="margin-bottom: 1rem;">📥 Exporting to Excel</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;" id="exportMessage">Preparing your report...</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <button class="btn btn-danger" id="cancelExport">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 1rem; color: white;">
+        <p>TitanX Parking System &copy; 2024 | Reports & Analytics</p>
+    </footer>
+
+    <script>
+        // Chart instances storage
+        const charts = {};
+
+        // Initialize all charts
+        function initializeCharts() {
+            // Destroy existing charts
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+
+            // Daily Report Charts
+            charts.dailyHourly = new Chart(document.getElementById('dailyHourlyChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
+                    datasets: [{
+                        label: 'Two Wheelers',
+                        data: [45, 38, 32, 26, 13, 0],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Four Wheelers',
+                        data: [32, 28, 25, 31, 17, 0],
+                        borderColor: '#f5576c',
+                        backgroundColor: 'rgba(245, 87, 108, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Vehicles'
+                            }
+                        }
+                    }
+                }
+            });
+
+            charts.dailyRevenue = new Chart(document.getElementById('dailyRevenueChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Two Wheelers', 'Four Wheelers'],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [4620, 3830],
+                        backgroundColor: ['#667eea', '#f5576c'],
+                        borderColor: ['#5a6fd8', '#d23369'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Revenue (₹)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            charts.dailyDistribution = new Chart(document.getElementById('dailyDistributionChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Two Wheelers', 'Four Wheelers'],
+                    datasets: [{
+                        data: [154, 133],
+                        backgroundColor: ['#667eea', '#f5576c'],
+                        borderColor: ['#5a6fd8', '#d23369'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            charts.dailyPeak = new Chart(document.getElementById('dailyPeakChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['6-9AM', '9-12PM', '12-3PM', '3-6PM', '6-9PM'],
+                    datasets: [{
+                        label: 'Total Vehicles',
+                        data: [77, 66, 57, 57, 30],
+                        backgroundColor: '#4CAF50',
+                        borderColor: '#45a049',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Vehicles'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Weekly Report Charts
+            charts.weeklyTrend = new Chart(document.getElementById('weeklyTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Total Vehicles',
+                        data: [267, 256, 290, 277, 317, 253, 196],
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Vehicles'
+                            }
+                        }
+                    }
+                }
+            });
+
+            charts.weeklyRevenue = new Chart(document.getElementById('weeklyRevenueChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [7840, 7520, 8320, 8010, 9210, 7420, 6000],
+                        backgroundColor: '#FF9800',
+                        borderColor: '#e68900',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Revenue (₹)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Weekly Vehicle Type Comparison Chart
+            charts.weeklyComparison = new Chart(document.getElementById('weeklyComparisonChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Two Wheelers',
+                        data: [142, 138, 156, 148, 165, 132, 106],
+                        backgroundColor: '#667eea',
+                        borderColor: '#5a6fd8',
+                        borderWidth: 1
+                    }, {
+                        label: 'Four Wheelers',
+                        data: [125, 118, 134, 129, 152, 121, 90],
+                        backgroundColor: '#f5576c',
+                        borderColor: '#d23369',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Vehicles'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Weekly Capacity Utilization Chart
+            charts.weeklyCapacity = new Chart(document.getElementById('weeklyCapacityChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Capacity Utilization %',
+                        data: [85, 82, 92, 88, 95, 80, 65],
+                        borderColor: '#9C27B0',
+                        backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Capacity %'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Monthly Report Charts
+            charts.monthlyRevenue = new Chart(document.getElementById('monthlyRevenueChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [53200, 57120, 59450, 61680],
+                        backgroundColor: '#9C27B0',
+                        borderColor: '#8E24AA',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Revenue (₹)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            charts.monthlyDistribution = new Chart(document.getElementById('monthlyDistributionChart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['Two Wheelers', 'Four Wheelers'],
+                    datasets: [{
+                        data: [4215, 3677],
+                        backgroundColor: ['#667eea', '#f5576c'],
+                        borderColor: ['#5a6fd8', '#d23369'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Monthly Weekly Performance Chart
+            charts.monthlyWeekly = new Chart(document.getElementById('monthlyWeeklyChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Total Vehicles',
+                        data: [1830, 1966, 2050, 2046],
+                        borderColor: '#FF9800',
+                        backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Revenue (₹)',
+                        data: [53200, 57120, 59450, 61680],
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Number of Vehicles'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Revenue (₹)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Monthly Revenue vs Capacity Chart
+            charts.monthlyComparison = new Chart(document.getElementById('monthlyComparisonChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [53200, 57120, 59450, 61680],
+                        backgroundColor: '#4CAF50',
+                        borderColor: '#45a049',
+                        borderWidth: 2,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Capacity %',
+                        data: [82, 85, 88, 89],
+                        type: 'line',
+                        borderColor: '#f5576c',
+                        backgroundColor: 'rgba(245, 87, 108, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: false,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Revenue (₹)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Capacity %'
+                            },
+                            min: 0,
+                            max: 100,
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Excel Export Functionality
+        function exportToExcel(reportType) {
+            const exportModal = document.getElementById('exportModal');
+            const progressBar = document.getElementById('progressBar');
+            const exportMessage = document.getElementById('exportMessage');
+            
+            exportModal.classList.add('active');
+            progressBar.style.width = '0%';
+            exportMessage.textContent = `Preparing ${reportType} report...`;
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                
+                if (progress === 25) exportMessage.textContent = 'Collecting data...';
+                if (progress === 50) exportMessage.textContent = 'Formatting Excel file...';
+                if (progress === 75) exportMessage.textContent = 'Adding charts and analytics...';
+                if (progress === 90) exportMessage.textContent = 'Finalizing download...';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Generate Excel file
+                    generateExcelFile(reportType);
+                    
+                    setTimeout(() => {
+                        exportModal.classList.remove('active');
+                        alert(`${reportType} report exported successfully!`);
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        function generateExcelFile(reportType) {
+            // Get data based on report type
+            let data = [];
+            let fileName = '';
+            
+            if (reportType === 'Daily') {
+                data = [
+                    ['Time Slot', 'Two Wheelers', 'Four Wheelers', 'Total Entries', 'Revenue'],
+                    ['6:00 AM - 9:00 AM', 45, 32, 77, 2310],
+                    ['9:00 AM - 12:00 PM', 38, 28, 66, 1980],
+                    ['12:00 PM - 3:00 PM', 32, 25, 57, 1710],
+                    ['3:00 PM - 6:00 PM', 26, 31, 57, 1710],
+                    ['6:00 PM - 9:00 PM', 13, 17, 30, 740]
+                ];
+                fileName = `daily_parking_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+            } else if (reportType === 'Weekly') {
+                data = [
+                    ['Day', 'Two Wheelers', 'Four Wheelers', 'Total Entries', 'Revenue', 'Capacity %'],
+                    ['Monday', 142, 125, 267, 7840, '85%'],
+                    ['Tuesday', 138, 118, 256, 7520, '82%'],
+                    ['Wednesday', 156, 134, 290, 8320, '92%'],
+                    ['Thursday', 148, 129, 277, 8010, '88%'],
+                    ['Friday', 165, 152, 317, 9210, '95%'],
+                    ['Saturday', 132, 121, 253, 7420, '80%'],
+                    ['Sunday', 106, 90, 196, 6000, '65%']
+                ];
+                fileName = `weekly_parking_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+            } else if (reportType === 'Monthly') {
+                data = [
+                    ['Week', 'Two Wheelers', 'Four Wheelers', 'Total Entries', 'Revenue', 'Growth %'],
+                    ['Week 1 (Nov 1-7)', 985, 845, 1830, 53200, '+5.2%'],
+                    ['Week 2 (Nov 8-14)', 1087, 879, 1966, 57120, '+7.4%'],
+                    ['Week 3 (Nov 15-21)', 1125, 925, 2050, 59450, '+4.1%'],
+                    ['Week 4 (Nov 22-28)', 1018, 1028, 2046, 61680, '+3.7%']
+                ];
+                fileName = `monthly_parking_report_${new Date().getFullYear()}_${new Date().getMonth() + 1}.xlsx`;
+            }
+
+            // Create workbook and worksheet
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, `${reportType} Report`);
+
+            // Generate and download file
+            XLSX.writeFile(wb, fileName);
+        }
+
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts immediately
+            initializeCharts();
+            
+            const reportTabs = document.querySelectorAll('.report-tab');
+            const reportContents = document.querySelectorAll('.report-content');
+            
+            reportTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const reportType = this.getAttribute('data-report');
+                    
+                    // Update active tab
+                    reportTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    reportContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`${reportType}-report`).classList.add('active');
+                    
+                    // Reinitialize charts when switching tabs
+                    setTimeout(initializeCharts, 100);
+                });
+            });
+
+            // Export functionality
+            const exportModal = document.getElementById('exportModal');
+            const cancelExport = document.getElementById('cancelExport');
+
+            // Add event listeners to export buttons
+            document.getElementById('export-daily').addEventListener('click', () => exportToExcel('Daily'));
+            document.getElementById('export-weekly').addEventListener('click', () => exportToExcel('Weekly'));
+            document.getElementById('export-monthly').addEventListener('click', () => exportToExcel('Monthly'));
+            document.getElementById('export-excel').addEventListener('click', () => {
+                const activeTab = document.querySelector('.report-tab.active');
+                const reportType = activeTab ? activeTab.getAttribute('data-report') : 'daily';
+                exportToExcel(reportType.charAt(0).toUpperCase() + reportType.slice(1));
+            });
+
+            cancelExport.addEventListener('click', () => {
+                exportModal.classList.remove('active');
+            });
+
+            // Update dates
+            function updateDates() {
+                const now = new Date();
+                
+                // Daily date
+                document.getElementById('daily-date').textContent = now.toLocaleDateString('en-US', { 
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                });
+                
+                // Weekly date
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay());
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                
+                document.getElementById('weekly-date').textContent = 
+                    `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                
+                // Monthly date
+                document.getElementById('monthly-date').textContent = 
+                    now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            }
+
+            updateDates();
+
+            // Generate report buttons
+            document.getElementById('generate-daily').addEventListener('click', () => {
+                document.querySelector('[data-report="daily"]').click();
+            });
+            document.getElementById('generate-weekly').addEventListener('click', () => {
+                document.querySelector('[data-report="weekly"]').click();
+            });
+            document.getElementById('generate-monthly').addEventListener('click', () => {
+                document.querySelector('[data-report="monthly"]').click();
+            });
+        });
+    </script>
+</body>
+</html>
